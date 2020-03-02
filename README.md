@@ -6,7 +6,7 @@ Admittance control law to generate desired motion of an end-effector (twist), gi
 
 * The current implementation is tested on a UR10 velocity-controlled robot with a robotiq FT 300 force torque sensor. The arm is part of the Robbie Yuri robot of the Interactive Robotics Group (IRG), MIT which is an older version of the [Care-O-Bot](http://www.care-o-bot.org) platform series.
 
-**Disclaimer**: This code was originally forked from [ridgeback_ur5_controller](https://github.com/nbfigueroa/ridgeback_ur5_controller/tree/devel/admittance_control) which is a repo used to control a Clearpath robot with a UR5 from the LASA laboratory at EPFL.
+**Disclaimer**: This code was originally forked from [ridgeback_ur5_controller](https://github.com/epfl-lasa/ridgeback_ur5_controller) which is a repo used to control a Clearpath robot with a UR5 from the LASA laboratory at EPFL.
 
 
 ## Installation
