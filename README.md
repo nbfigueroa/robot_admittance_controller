@@ -8,7 +8,7 @@ Admittance control law to generate desired motion of an end-effector (twist), gi
 
 **Disclaimer**: This code was originally forked from [ridgeback_ur5_controller](https://github.com/epfl-lasa/ridgeback_ur5_controller) which is a repo used to control a Clearpath robot with a UR5 from the LASA laboratory at EPFL.
 
-** This branch includes the original code of the admittance controller fro arm+platform robotic system described in this [README](https://github.com/nbfigueroa/ridgeback_ur5_controller/blob/devel/README.md) file **
+**This branch includes the original code of the admittance controller fro arm+platform robotic system described in this [README](https://github.com/nbfigueroa/ridgeback_ur5_controller/blob/devel/README.md) file. It is not funcitional as is.**
 
 
 ## Installation
