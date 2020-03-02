@@ -3,12 +3,11 @@
 
 #include "ros/ros.h"
 
-#include "cartesian_state_msgs/PoseTwist.h"
+// #include "cartesian_state_msgs/PoseTwist.h"
+#include "geometry_msgs/Pose.h"
+#include "geometry_msgs/Twist.h"
 #include "geometry_msgs/WrenchStamped.h"
 #include "geometry_msgs/TwistStamped.h"
-#include "nav_msgs/Odometry.h"
-#include "sensor_msgs/LaserScan.h"
-#include "laser_geometry/laser_geometry.h"
 #include <tf/transform_datatypes.h>
 #include <tf_conversions/tf_eigen.h>
 #include <tf/transform_listener.h>
@@ -93,16 +92,13 @@ protected:
 
   // Subscribers:
 
-  // Subscriber for the platform state
-  ros::Subscriber sub_platform_state_;
   // Subscriber for the arm state
-  ros::Subscriber sub_arm_state_;
-  // Subscriber for the ft sensor at the endeffector
+  ros::Subscriber sub_arm_pose_;
+  ros::Subscriber sub_arm_twist_;
+  // Subscriber for the ft sensor at the end-effector
   ros::Subscriber sub_wrench_external_;
-  // Subscriber for the ft sensor at the endeffector
+  // Subscriber for the control input (wrench)
   ros::Subscriber sub_wrench_control_;
-  // Subscriber for the offset of the attractor
-  ros::Subscriber sub_equilibrium_desired_;
   // Subscriber for the admittance ratio
   ros::Subscriber sub_admittance_ratio_;
   // Subscriber for the DS desired velocity
@@ -111,20 +107,12 @@ protected:
 
   // Publishers:
 
-  // Publisher for the twist of the platform
-  ros::Publisher pub_platform_cmd_;
   // Publisher for the twist of arm endeffector
   ros::Publisher pub_arm_cmd_;
-  // Publisher for the pose of arm endeffector in the world frame
-  ros::Publisher pub_ee_pose_world_;
-  // Publisher for the twist of arm endeffector in the world frame
-  ros::Publisher pub_ee_twist_world_;
   // Publisher for the external wrench specified in the world frame
   ros::Publisher pub_wrench_external_;
   // Publisher for the control wrench specified in the world frame
   ros::Publisher pub_wrench_control_;
-  // Publisher to visualize the real equilibrium used by admittance.
-  ros::Publisher pub_equilibrium_real_;
 
 
   // INPUT SIGNAL
@@ -143,19 +131,9 @@ protected:
 
 
   // ADMITTANCE PARAMETERS:
-  // M_p_, M_a_ -> Desired mass of platform/arm
-  // D_ -> Desired damping of the coupling
-  // D_p_, D_a_ -> Desired damping of platform/arm
-  // K_ -> Desired Stiffness of the coupling
-  Matrix6d M_p_, M_a_, D_, D_p_, D_a_, K_;
-  // equilibrium position of the coupling spring
-  Vector3d equilibrium_position_;
-  Vector3d equilibrium_position_seen_by_platform;
-  // equilibrium orientation of the coupling spring
-  Quaterniond equilibrium_orientation_;
-
-  // receiving a new equilibrium from a topic
-  Vector3d equilibrium_new_;
+  // M_a_ -> Desired mass of arm
+  // D_a_ -> Desired damping of arm
+  Matrix6d M_a_, D_a_;
 
   // arm desired velocity based on DS (or any other velocity input)
   Vector3d arm_desired_twist_ds_;
@@ -163,43 +141,27 @@ protected:
   // desired velocity for arm based on admittance
   Vector6d arm_desired_twist_adm_;
 
-
   // OUTPUT COMMANDS
   // final arm desired velocity 
   Vector6d arm_desired_twist_final_;
-  // the desired velcoities computed by the admittance control
-  Vector6d platform_desired_twist_;
 
   // limiting the workspace of the arm
   Vector6d workspace_limits_;
   double arm_max_vel_;
   double arm_max_acc_;
-  double platform_max_vel_;
-  double platform_max_acc_;
-
 
   // STATE VARIABLES:
-  // Platform state: position, orientation, and twist (in "platform base_link")
-  Vector3d platform_real_position_;
-  Quaterniond platform_real_orientation_;
-  Vector6d platform_real_twist_;
-
   // Arm state: position, orientation, and twist (in "ur5_arm_base_link")
-  Vector3d arm_real_position_;
-  Quaterniond arm_real_orientation_;
-  Vector6d arm_real_twist_;
+  Vector3d     arm_real_position_;
+  Quaterniond  arm_real_orientation_;
+  Vector6d     arm_real_twist_;
 
   // End-effector state: pose and twist (in "world" frame)
-  Vector7d ee_pose_world_;
-  Vector6d ee_twist_world_;
-
+  Vector7d     ee_pose_world_;
+  Vector6d     ee_twist_world_;
 
   // Transform from base_link to world
   Matrix6d rotation_base_;
-  // Derivative of kinematic constraints between the arm and the platform
-  Matrix6d kin_constraints_;
-
-
 
   // TF:
   // Listeners
@@ -219,13 +181,12 @@ protected:
   // Control
   void compute_admittance();
 
-
-
   // Callbacks
-  void state_platform_callback(const nav_msgs::OdometryConstPtr msg);
-  void state_arm_callback(const cartesian_state_msgs::PoseTwistConstPtr msg);
+  void pose_arm_callback(const geometry_msgs::PoseConstPtr msg);
+  void twist_arm_callback(const geometry_msgs::TwistConstPtr msg);
   void wrench_callback(const geometry_msgs::WrenchStampedConstPtr msg);
   void wrench_control_callback(const geometry_msgs::WrenchStampedConstPtr msg);
+  void ds_velocity_callback(const geometry_msgs::TwistStampedPtr msg);
 
 
   // Util
@@ -233,56 +194,31 @@ protected:
                            tf::TransformListener & listener,
                            std::string from_frame,  std::string to_frame);
 
-  void publish_arm_state_in_world();
-
-  // void get_ee_pose_world(geometry_msgs::Pose & ee_pose_world,
-  //                        tf::TransformListener & listener);
-
   void limit_to_workspace();
 
   void publish_debuggings_signals();
 
   void send_commands_to_robot();
 
-  void equilibrium_callback(const geometry_msgs::PointPtr msg);
-
   void admittance_ratio_callback(const std_msgs::Float32Ptr msg);
-
-  void ds_velocity_callback(const geometry_msgs::TwistStampedPtr msg);
-
 
 
 public:
   AdmittanceController(ros::NodeHandle &n, double frequency,
-                       std::string cmd_topic_platform,
-                       std::string state_topic_platform,
                        std::string cmd_topic_arm,
-                       std::string topic_arm_pose_world,
-                       std::string topic_arm_twist_world,
+                       std::string topic_arm_pose,
+                       std::string topic_arm_twist,
                        std::string topic_wrench_u_e,
                        std::string topic_wrench_u_c,
-                       std::string state_topic_arm,
                        std::string wrench_topic,
                        std::string wrench_control_topic,
                        std::string topic_admittance_ratio,
-                       std::string topic_equilibrium_deisred,
-                       std::string topic_equilibrium_real,
                        std::string topic_ds_velocity,
-                       std::vector<double> M_p,
                        std::vector<double> M_a,
-                       std::vector<double> D,
-                       std::vector<double> D_p,
                        std::vector<double> D_a,
-                       std::vector<double> K,
-                       std::vector<double> d_e,
                        std::vector<double> workspace_limits,
                        double arm_max_vel,
-                       double arm_max_acc,
-                       double platform_max_vel,
-                       double platform_max_acc,
-                       double wrench_filter_factor,
-                       double force_dead_zone_thres,
-                       double torque_dead_zone_thres);
+                       double arm_max_acc);
   void run();
 };
 

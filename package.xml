@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>admittance_control</name>
+  <name>arm_admittance_controller</name>
   <version>0.0.0</version>
-  <description>The admittance_control package</description>
+  <description>The arm_admittance_controller package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -28,16 +28,12 @@
   <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
 
 
-  <build_depend>cartesian_state_msgs</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>laser_geometry</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>cmake_modules</build_depend>
   <build_depend>eigen</build_depend>
 
-  <run_depend>cartesian_state_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
-  <run_depend>laser_geometry</run_depend>
+  <run_depend>geometry_msgs</run_depend>
   <run_depend>tf</run_depend>
   <run_depend>eigen</run_depend>
   <buildtool_depend>catkin</buildtool_depend>
