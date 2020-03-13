@@ -4,51 +4,26 @@
       Launch file for the admittance controller
   -->
 
-  <arg name="STATE_TOPIC_ARM" default="/ur5_cartesian_velocity_controller_sim/ee_state"/>
-  <arg name="CMD_TOPIC_ARM" default="/ur5_cartesian_velocity_controller_sim/command_cart_vel"/>
-  <arg name="WRENCH_FILTER_FACTOR" default="1.0" />
-  <arg name="FORCE_DEAD_ZONE_THRES" default="0.0" />
-  <arg name="TORQUE_DEAD_ZONE_THRES" default="0.0" />
+  <arg name="POSE_TOPIC_ARM"           default="/UR10arm/ee_pose"/>
+  <arg name="TWIST_TOPIC_ARM"          default="/UR10arm/ee_twist"/>  
+  <arg name="WRENCH_EXT_TOPIC_ARM"     default="/robotiq_force_torque_wrench"/>
+  <arg name="WRENCH_CTR_TOPIC_ARM"     default="/arm_admittance_control/control_wrench" />
+  <arg name="CMD_TOPIC_ARM"            default="/UR10arm/desired_twist"/>
+  <arg name="ADMITTANCE_PARAMS_FILE"   default="$(find arm_admittance_controller)/config/admittance_params.yaml" />
 
-  <!-- Other control and state topics -->
-  <arg name="TOPIC_ARM_TWIST_WORLD" default="/admittance_control/ee_twist_world"/>
-  <arg name="TOPIC_ARM_POSE_WORLD" default="/admittance_control/ee_pose_world"/>
-  <arg name="TOPIC_TWIST_U_E" default="/admittance_control/u_e"/>
-  <arg name="TOPIC_TWIST_U_C" default="/admittance_control/u_c"/>
-  <arg name="STATE_TOPIC_PLATFORM" default="/odometry/filtered"/>
-  <arg name="CMD_TOPIC_PLATFORM" default="/cmd_vel" />
-  <arg name="WRENCH_TOPIC" default="/admittance_control/wrench" />
-  <arg name="ADMITTANCE_PARAMS_FILE" default="$(find admittance_control)/config/admittance_params.yaml" />
-  <arg name="WRENCH_CONTROL_TOPIC" default="/admittance_control/wrench_control" />
-  <arg name="LASER_FRONT_TOPIC" default="/front/scan" />
-  <arg name="LASER_REAR_TOPIC" default="/rear/scan" />
-  <arg name="OBS_DISTANCE_THRES" default="0.3" />
-  <arg name="SELF_DETECT_THRES" default="0.02" />
-  <arg name="DONT_AVOID_FRONT" default="true" />
+ 
+  <group ns="admittance_control">
+    <!-- Converting args into params -->
+    <param name="topic_arm_pose"                   value="$(arg POSE_TOPIC_ARM)"/>
+    <param name="topic_arm_twist"                 value="$(arg TWIST_TOPIC_ARM)"/>
+    <param name="topic_external_wrench"            value="$(arg WRENCH_EXT_TOPIC_ARM)"/>
+    <param name="topic_control_wrench"             value="$(arg WRENCH_CTR_TOPIC_ARM)"/>
+    <param name="topic_arm_command"                value="$(arg CMD_TOPIC_ARM)"/>
+    <rosparam file="$(arg ADMITTANCE_PARAMS_FILE)" command="load"/>
 
+    <node pkg="arm_admittance_controller" name="admittance_controller_node"
+    type="admittance_controller_node" output="screen"/>
 
-  <param name="state_topic_arm" value="$(arg STATE_TOPIC_ARM)"/>
-  <param name="cmd_topic_arm" value="$(arg CMD_TOPIC_ARM)"/>
-  <param name="topic_arm_twist_world" value="$(arg TOPIC_ARM_TWIST_WORLD)"/>
-  <param name="topic_arm_pose_world" value="$(arg TOPIC_ARM_POSE_WORLD)"/>
-  <param name="topic_wrench_u_e" value="$(arg TOPIC_TWIST_U_E)"/>
-  <param name="topic_wrench_u_c" value="$(arg TOPIC_TWIST_U_C)"/>
-  <param name="state_topic_platform" value="$(arg STATE_TOPIC_PLATFORM)"/>
-  <param name="cmd_topic_platform" value="$(arg CMD_TOPIC_PLATFORM)"/>
-  <param name="wrench_topic" value="$(arg WRENCH_TOPIC)"/>
-  <param name="wrench_control_topic" value="$(arg WRENCH_CONTROL_TOPIC)"/>
-  <param name="wrench_filter_factor" value="$(arg WRENCH_FILTER_FACTOR)"/>
-  <param name="force_dead_zone_thres" value="$(arg FORCE_DEAD_ZONE_THRES)"/>
-  <param name="torque_dead_zone_thres" value="$(arg TORQUE_DEAD_ZONE_THRES)"/>
-  <param name="laser_front_topic" value="$(arg LASER_FRONT_TOPIC)"/>
-  <param name="laser_rear_topic" value="$(arg LASER_REAR_TOPIC)"/>
-  <param name="obs_distance_thres" value="$(arg OBS_DISTANCE_THRES)"/>
-  <param name="self_detect_thres" value="$(arg SELF_DETECT_THRES)"/>
-  <param name="dont_avoid_front" value="$(arg DONT_AVOID_FRONT)"/>
-
-  <rosparam file="$(arg ADMITTANCE_PARAMS_FILE)" command="load"/>
-
-  <node pkg="admittance_control" name="admittance_controller"
-  type="admittance_controller_node" output="screen"/>
+  </group>
 
 </launch>

@@ -1,44 +1,23 @@
-# Admittance parameters for two mass damper systems
-# (the arm and the platform) with params (mass_arm, damping_arm)
-# and (mass_platform, damping_platform) respectively, connected by a
-# spring-damper with parameters (damping_coupling, stiffness_coupling,
-# equilibrium_point_spring)
-mass_platform: [1,0,0,0,0,0,
-                0,1,0,0,0,0,
-                0,0,1,0,0,0,
-                0,0,0,1,0,0,
-                0,0,0,0,1,0,
-                0,0,0,0,0,1]
+# Admittance parameters for mass damper system
 mass_arm: [2,0,0,0,0,0,
            0,2,0,0,0,0,
            0,0,2,0,0,0,
            0,0,0,2,0,0,
            0,0,0,0,2,0,
            0,0,0,0,0,2]
-damping_coupling: [0,0,0,0,0,0,
-                   0,0,0,0,0,0,
-                   0,0,0,0,0,0,
-                   0,0,0,0,0,0,
-                   0,0,0,0,0,0,
-                   0,0,0,0,0,0]
-damping_platform: [5,0,0,0,0,0,
-                   0,5,0,0,0,0,
-                   0,0,5,0,0,0,
-                   0,0,0,0,0,0,
-                   0,0,0,0,0,0,
-                   0,0,0,0,0,5]
 damping_arm: [12,0,0,0,0,0,
               0,12,0,0,0,0,
               0,0,12,0,0,0,
               0,0,0,10,0,0,
               0,0,0,0,10,0,
               0,0,0,0,0,10]
-stiffness_coupling: [10,0,0,0,0,0,
-                     0,20,0,0,0,0,
-                     0,0,10,0,0,0,
-                     0,0,0,10,0,0,
-                     0,0,0,0,10,0,
-                     0,0,0,0,0,10]
-# [position (x, y, z)  orientation (x, y, z, w)]
-equilibrium_point_spring: [0.1,0.4,0.5,-0.593599, -0.566706, -0.369419, 0.435908]
+# not that position is defined in "ur5_arm_base_link"
+# with x pointing right
+#      y pointing forward
+#      z pointing up
 
+# this will limit the workspace ([x_min x_max y_min y_max z_min z_max])
+# This is in the world reference frame!! Need to change to arm_base_link
+workspace_limits: [0.15, 1.75, -1.75, 1.75, 0.30, 1.75]
+arm_max_vel: 1.5
+arm_max_acc: 1.0

@@ -83,14 +83,14 @@ typedef Matrix<double, 6, 6> Matrix6d;
 class AdmittanceController
 {
 protected:
-  // ROS VARIABLES:
+  // ---  ROS VARIABLES --- //
   // A handle to the node in ros
   ros::NodeHandle nh_;
   // Rate of the run loop
   ros::Rate loop_rate_;
 
 
-  // Subscribers:
+  // --- Subscribers --- //
 
   // Subscriber for the arm state
   ros::Subscriber sub_arm_pose_;
@@ -99,59 +99,40 @@ protected:
   ros::Subscriber sub_wrench_external_;
   // Subscriber for the control input (wrench)
   ros::Subscriber sub_wrench_control_;
-  // Subscriber for the admittance ratio
-  ros::Subscriber sub_admittance_ratio_;
-  // Subscriber for the DS desired velocity
-  ros::Subscriber sub_ds_velocity_;
 
 
-  // Publishers:
-
+  // --- Publishers --- //
   // Publisher for the twist of arm endeffector
   ros::Publisher pub_arm_cmd_;
   // Publisher for the external wrench specified in the world frame
-  ros::Publisher pub_wrench_external_;
+  // ros::Publisher pub_wrench_external_;
   // Publisher for the control wrench specified in the world frame
-  ros::Publisher pub_wrench_control_;
+  // ros::Publisher pub_wrench_control_;
 
 
-  // INPUT SIGNAL
+  // --- INPUT SIGNAL --- //
   // external wrench (force/torque sensor) in "robotiq_force_torque_frame_id" frame
   Vector6d wrench_external_;
   // control wrench (from any controller) expected to be in "ur5_arm_base_link" frame
   Vector6d wrench_control_;
 
 
-  // FORCE/TORQUE-SENSOR FILTER:
-  // Parameters for the noisy wrench
-  double wrench_filter_factor_;
-  double force_dead_zone_thres_;
-  double torque_dead_zone_thres_;
-  double admittance_ratio_;
-
-
-  // ADMITTANCE PARAMETERS:
+  // --- ADMITTANCE PARAMETERS --- //
   // M_a_ -> Desired mass of arm
   // D_a_ -> Desired damping of arm
   Matrix6d M_a_, D_a_;
 
-  // arm desired velocity based on DS (or any other velocity input)
-  Vector3d arm_desired_twist_ds_;
-
-  // desired velocity for arm based on admittance
-  Vector6d arm_desired_twist_adm_;
-
-  // OUTPUT COMMANDS
+  // --- OUTPUT COMMANDS --- //
   // final arm desired velocity 
-  Vector6d arm_desired_twist_final_;
+  Vector6d arm_desired_twist_;
 
   // limiting the workspace of the arm
   Vector6d workspace_limits_;
   double arm_max_vel_;
   double arm_max_acc_;
 
-  // STATE VARIABLES:
-  // Arm state: position, orientation, and twist (in "ur5_arm_base_link")
+  // --- STATE VARIABLES -- //
+  // Arm state: position, orientation, and twist (in "arm_base_link")
   Vector3d     arm_real_position_;
   Quaterniond  arm_real_orientation_;
   Vector6d     arm_real_twist_;
@@ -172,7 +153,6 @@ protected:
   // Guards
   bool ft_arm_ready_;
   bool arm_world_ready_;
-  bool base_world_ready_;
   bool world_arm_ready_;
 
   // Initialization
@@ -184,9 +164,8 @@ protected:
   // Callbacks
   void pose_arm_callback(const geometry_msgs::PoseConstPtr msg);
   void twist_arm_callback(const geometry_msgs::TwistConstPtr msg);
-  void wrench_callback(const geometry_msgs::WrenchStampedConstPtr msg);
+  void wrench_external_callback(const geometry_msgs::WrenchStampedConstPtr msg);
   void wrench_control_callback(const geometry_msgs::WrenchStampedConstPtr msg);
-  void ds_velocity_callback(const geometry_msgs::TwistStampedPtr msg);
 
 
   // Util
@@ -196,24 +175,18 @@ protected:
 
   void limit_to_workspace();
 
-  void publish_debuggings_signals();
+  // void publish_debuggings_signals();
 
   void send_commands_to_robot();
 
-  void admittance_ratio_callback(const std_msgs::Float32Ptr msg);
-
 
 public:
-  AdmittanceController(ros::NodeHandle &n, double frequency,
-                       std::string cmd_topic_arm,
+  AdmittanceController(ros::NodeHandle &n, double frequency,                       
                        std::string topic_arm_pose,
                        std::string topic_arm_twist,
-                       std::string topic_wrench_u_e,
-                       std::string topic_wrench_u_c,
-                       std::string wrench_topic,
+                       std::string wrench_external_topic,
                        std::string wrench_control_topic,
-                       std::string topic_admittance_ratio,
-                       std::string topic_ds_velocity,
+                       std::string cmd_topic_arm,
                        std::vector<double> M_a,
                        std::vector<double> D_a,
                        std::vector<double> workspace_limits,

@@ -30,12 +30,7 @@ int main(int argc, char **argv)
   // LOADING PARAMETERS FROM THE ROS SERVER
 
   // Topic names
-  if (!nh.getParam("topic_arm_command", topic_arm_command)) {
-    ROS_ERROR("Couldn't retrieve the topic name for commanding the arm.");
-    return -1;
-  }
-
-    if (!nh.getParam("topic_arm_pose", topic_arm_pose)) {
+  if (!nh.getParam("topic_arm_pose", topic_arm_pose)) {
     ROS_ERROR("Couldn't retrieve the topic name for the EE pose in the world frame.");
     return -1;
   }
@@ -44,7 +39,6 @@ int main(int argc, char **argv)
     ROS_ERROR("Couldn't retrieve the topic name for the EE twist in the world frame.");
     return -1;
   }
-
 
   if (!nh.getParam("topic_external_wrench", topic_external_wrench)) {
     ROS_ERROR("Couldn't retrieve the topic name for the force/torque sensor.");
@@ -56,23 +50,8 @@ int main(int argc, char **argv)
     return -1;
   }
 
-  if (!nh.getParam("topic_ds_velocity", topic_ds_velocity)) {
-    ROS_ERROR("Couldn't retrieve the topic name for the DS velocity.");
-    return -1;
-  }
-
-  if (!nh.getParam("topic_external_wrench_arm_frame", topic_external_wrench_arm_frame)) {
-    ROS_ERROR("Couldn't retrieve the topic name for the external wrench in the arm frame.");
-    return -1;
-  }
-
-  if (!nh.getParam("topic_control_external_arm_frame", topic_control_external_arm_frame)) {
-    ROS_ERROR("Couldn't retrieve the topic name for the control wrench in the arm frame.");
-    return -1;
-  }
-
-  if (!nh.getParam("topic_admittance_ratio", topic_admittance_ratio)) {
-    ROS_ERROR("Couldn't retrieve the topic name for the admittance ratio.");
+  if (!nh.getParam("topic_arm_command", topic_arm_command)) {
+    ROS_ERROR("Couldn't retrieve the topic name for commanding the arm.");
     return -1;
   }
 
@@ -109,15 +88,11 @@ int main(int argc, char **argv)
   AdmittanceController admittance_controller(
     nh,
     frequency,
-    topic_arm_command,
     topic_arm_pose,
     topic_arm_twist,
-    topic_external_wrench_arm_frame,
-    topic_control_external_arm_frame,
     topic_external_wrench,
     topic_control_wrench,
-    topic_admittance_ratio,
-    topic_ds_velocity,
+    topic_arm_command,
     M_a, D_a,
     workspace_limits,
     arm_max_vel, arm_max_acc);
