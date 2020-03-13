@@ -65,8 +65,6 @@ AdmittanceController::AdmittanceController(ros::NodeHandle &n,
 
   // Init integrator
   arm_desired_twist_.setZero();
-
-
   ft_arm_ready_ = false;
   arm_world_ready_ = false;
   world_arm_ready_ = false;
@@ -160,15 +158,10 @@ void AdmittanceController::wrench_external_callback(
                     msg->wrench.force.z, msg->wrench.torque.x,
                     msg->wrench.torque.y, msg->wrench.torque.z;
 
-    // --- Not sure I need this right now --- //                
-    // Get transform from arm base link to platform base link
-    // get_rotation_matrix(rotation_ft_base, listener_ft_,
-    //                     "ur5_arm_base_link", "robotiq_force_torque_frame_id");
-
-    // wrench_external_ <<  rotation_ft_base * wrench_ft_frame;
 
     // --- For now I assume it's in the ee reference frame already --- //                
-    wrench_external_ <<  wrench_ft_frame;
+    get_rotation_matrix(rotation_tool_, listener_ft_, "base_link", "arm_tool0");
+    wrench_external_ <<  rotation_tool_  * wrench_ft_frame;
   }
 }
 
@@ -272,6 +265,7 @@ void AdmittanceController::wait_for_transformations() {
   tf::TransformListener listener;
   Matrix6d rot_matrix;
   rotation_base_.setZero();
+  rotation_tool_.setZero();
 
   // Makes sure all TFs exists before enabling all transformations in the callbacks
   while (!get_rotation_matrix(rotation_base_, listener,
@@ -298,8 +292,8 @@ void AdmittanceController::wait_for_transformations() {
   //                             "arm_base_link", "robotiq_force_torque_frame_id")) {
   //   sleep(1);
   // }
-  while (!get_rotation_matrix(rot_matrix, listener,
-                              "arm_base_link", "arm_ee_link")) {
+  while (!get_rotation_matrix(rotation_tool_, listener,
+                              "base_link", "arm_tool0")) {
     sleep(1);
   }
   ft_arm_ready_ = true;

@@ -143,6 +143,7 @@ protected:
 
   // Transform from base_link to world
   Matrix6d rotation_base_;
+  Matrix6d rotation_tool_;
 
   // TF:
   // Listeners
