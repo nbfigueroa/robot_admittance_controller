@@ -192,8 +192,8 @@ void AdmittanceController::send_commands_to_robot() {
   arm_twist_cmd.angular.y = arm_desired_twist_(4);
   arm_twist_cmd.angular.z = arm_desired_twist_(5);
 
-  ROS_WARN_STREAM_THROTTLE(10,"Desired linear velocity: "  << arm_twist_cmd.linear.x << " " << arm_twist_cmd.linear.y << " " <<  arm_twist_cmd.linear.z);
-  ROS_WARN_STREAM_THROTTLE(10,"Desired angular velocity: " << arm_twist_cmd.angular.x << " " << arm_twist_cmd.angular.y << " " <<  arm_twist_cmd.angular.z);
+  ROS_WARN_STREAM_THROTTLE(0.1,"Desired linear velocity: "  << arm_twist_cmd.linear.x << " " << arm_twist_cmd.linear.y << " " <<  arm_twist_cmd.linear.z);
+  ROS_WARN_STREAM_THROTTLE(0.1,"Desired angular velocity: " << arm_twist_cmd.angular.x << " " << arm_twist_cmd.angular.y << " " <<  arm_twist_cmd.angular.z);
 
   pub_arm_cmd_.publish(arm_twist_cmd);
 }
@@ -253,8 +253,17 @@ void AdmittanceController::limit_to_workspace() {
 
   }
 
+  // ROS_WARN_STREAM_THROTTLE(0.1,"Desired angular velocity: " << arm_desired_twist_(3) << " " << arm_desired_twist_(4) << " " <<  arm_desired_twist_(5));
+
+
   // velocity of the arm along x, y, and z angles
-  // TODO!
+  if (arm_desired_twist_(3) > 0.3)
+      arm_desired_twist_(3) = 0.3;
+  if (arm_desired_twist_(4) > 0.3)
+      arm_desired_twist_(4) = 0.3;
+  if (arm_desired_twist_(5) > 0.3)
+      arm_desired_twist_(5) = 0.3;    
+
 }
 
 

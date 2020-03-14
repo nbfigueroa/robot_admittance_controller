@@ -2,22 +2,22 @@
 mass_arm: [2,0,0,0,0,0,
            0,2,0,0,0,0,
            0,0,2,0,0,0,
-           0,0,0,2,0,0,
-           0,0,0,0,2,0,
-           0,0,0,0,0,2]
+           0,0,0,1,0,0,
+           0,0,0,0,1,0,
+           0,0,0,0,0,1]
 damping_arm: [12,0,0,0,0,0,
               0,12,0,0,0,0,
               0,0,12,0,0,0,
-              0,0,0,10,0,0,
-              0,0,0,0,10,0,
-              0,0,0,0,0,10]
+              0,0,0,7,0,0,
+              0,0,0,0,7,0,
+              0,0,0,0,0,7]
 # not that position is defined in "ur5_arm_base_link"
 # with x pointing right
 #      y pointing forward
 #      z pointing up
 
 # this will limit the workspace ([x_min x_max y_min y_max z_min z_max])
-# This is in the world reference frame!! Need to change to arm_base_link
-workspace_limits: [0.15, 1.75, -1.75, 1.75, 0.30, 1.75]
-arm_max_vel: 1.5
+# This is in the world reference frame!! Might need to change to arm_base_link
+workspace_limits: [0.15, 1.75, -1.75, 1.75, 0.30, 1.4]
+arm_max_vel: 0.5
 arm_max_acc: 1.0
