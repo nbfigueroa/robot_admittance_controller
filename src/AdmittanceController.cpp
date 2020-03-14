@@ -278,10 +278,9 @@ void AdmittanceController::limit_to_workspace() {
       arm_desired_twist_(5) = 0.3;    
 
 
-  // Limit velocity using repulsive workspace limit velocity field
-  
+  // Modulate velocity wrt. enclosed workspace limits!
   double ee_base_norm   = (arm_real_position_arm_).norm();
-  double rec_operating_limit = 1.2; 
+  double rec_operating_limit = 1.15; 
   double dist_limit = rec_operating_limit - ee_base_norm; 
   ROS_WARN_STREAM_THROTTLE(0.1, "||x_ee-w_limit||: " << dist_limit) ;
   
@@ -294,13 +293,13 @@ void AdmittanceController::limit_to_workspace() {
   // repulsive_field = workspace_fct * (repulsive_field/ee_base_norm);
   // ROS_WARN_STREAM_THROTTLE(0.1,"Repulsive velocity field: "  << repulsive_field(0) << " " << repulsive_field(1) << " " <<  repulsive_field(2));  
   ROS_WARN_STREAM_THROTTLE(0.1,"Workspace Scaling function: "  << workspace_fct);  
-  arm_desired_twist_.segment(0,3) = workspace_fct*arm_desired_twist_.segment(0,3);
+  // arm_desired_twist_.segment(0,3) = workspace_fct*arm_desired_twist_.segment(0,3);
 
   if (ee_base_norm >= rec_operating_limit){
     ROS_WARN_STREAM_THROTTLE(0.1, "Out of operational workspace limit!") ;
     base_position_ << 0.33000, 0.00000, 0.48600;
     Vector3d repulsive_field = -(arm_real_position_- base_position_);
-    arm_desired_twist_.segment(0,3) = 0.3*(repulsive_field/ee_base_norm);
+    arm_desired_twist_.segment(0,3) = 0.05*(repulsive_field/ee_base_norm);
     ROS_WARN_STREAM_THROTTLE(0.1, "Bringing robot back slowly with uniform repulsive velocity field!") ;
   }
 
