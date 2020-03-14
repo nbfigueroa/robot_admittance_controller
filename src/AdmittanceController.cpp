@@ -24,6 +24,10 @@ AdmittanceController::AdmittanceController(ros::NodeHandle &n,
   sub_arm_pose_           = nh_.subscribe(topic_arm_pose, 10,
                                  &AdmittanceController::pose_arm_callback, this,
                                  ros::TransportHints().reliable().tcpNoDelay());
+  std::string topic_arm_pose_arm = "/UR10arm/ee_pose_arm";
+  sub_arm_pose_arm_       = nh_.subscribe(topic_arm_pose_arm, 10,
+                                 &AdmittanceController::pose_arm_arm_callback, this,
+                                 ros::TransportHints().reliable().tcpNoDelay());
 
   sub_arm_twist_          = nh_.subscribe(topic_arm_twist, 10,
                                  &AdmittanceController::twist_arm_callback, this,
@@ -84,14 +88,11 @@ void AdmittanceController::run() {
     compute_admittance();
 
     // sum the vel from admittance to DS in this function
-    // limit the the movement of the arm to the permitted workspace
     limit_to_workspace();
+    // Here I can do the "workspace-modulation" idea
 
     // Copy commands to messages
     send_commands_to_robot();
-
-    // publishing visualization/debugging info
-    // publish_debuggings_signals();
 
     ros::spinOnce();
     loop_rate_.sleep();
@@ -140,6 +141,17 @@ void AdmittanceController::pose_arm_callback(
                                msg->orientation.w;
 }
 
+void AdmittanceController::pose_arm_arm_callback(
+  const geometry_msgs::PoseConstPtr msg) {
+  arm_real_position_arm_ << msg->position.x, msg->position.y,
+                     msg->position.z;
+
+  arm_real_orientation_arm_.coeffs() << msg->orientation.x,
+                               msg->orientation.y,
+                               msg->orientation.z,
+                               msg->orientation.w;
+}
+
 void AdmittanceController::twist_arm_callback(
   const geometry_msgs::TwistConstPtr msg) {
 
@@ -160,7 +172,7 @@ void AdmittanceController::wrench_external_callback(
 
 
     // --- For now I assume it's in the ee reference frame already --- //                
-    get_rotation_matrix(rotation_tool_, listener_ft_, "base_link", "arm_tool0");
+    get_rotation_matrix(rotation_tool_, listener_ft_, "base_link", "arm_tool0", 0 );
     wrench_external_ <<  rotation_tool_  * wrench_ft_frame;
   }
 }
@@ -201,47 +213,48 @@ void AdmittanceController::send_commands_to_robot() {
 
 void AdmittanceController::limit_to_workspace() {
 
-  if (arm_real_position_(0) < workspace_limits_(0) || arm_real_position_(0) > workspace_limits_(1)) {
-    ROS_WARN_STREAM_THROTTLE (1, "Out of permitted workspace.  x = "
-                              << arm_real_position_(0) << " not in [" << workspace_limits_(0) << " , "
-                              << workspace_limits_(1) << "]");
-  }
+  // if (arm_real_position_(0) < workspace_limits_(0) || arm_real_position_(0) > workspace_limits_(1)) {
+  //   ROS_WARN_STREAM_THROTTLE (1, "Out of permitted workspace.  x = "
+  //                             << arm_real_position_(0) << " not in [" << workspace_limits_(0) << " , "
+  //                             << workspace_limits_(1) << "]");
+  // }
 
-  if (arm_real_position_(1) < workspace_limits_(2) || arm_real_position_(1) > workspace_limits_(3)) {
-    ROS_WARN_STREAM_THROTTLE (1, "Out of permitted workspace.  y = "
-                              << arm_real_position_(1) << " not in [" << workspace_limits_(2) << " , "
-                              << workspace_limits_(3) << "]");
-  }
+  // if (arm_real_position_(1) < workspace_limits_(2) || arm_real_position_(1) > workspace_limits_(3)) {
+  //   ROS_WARN_STREAM_THROTTLE (1, "Out of permitted workspace.  y = "
+  //                             << arm_real_position_(1) << " not in [" << workspace_limits_(2) << " , "
+  //                             << workspace_limits_(3) << "]");
+  // }
 
-  if (arm_real_position_(2) < workspace_limits_(4) || arm_real_position_(2) > workspace_limits_(5)) {
-    ROS_WARN_STREAM_THROTTLE (1, "Out of permitted workspace.  z = "
-                              << arm_real_position_(2) << " not in [" << workspace_limits_(4) << " , "
-                              << workspace_limits_(5) << "]");
-  }
+  // if (arm_real_position_(2) < workspace_limits_(4) || arm_real_position_(2) > workspace_limits_(5)) {
+  //   ROS_WARN_STREAM_THROTTLE (1, "Out of permitted workspace.  z = "
+  //                             << arm_real_position_(2) << " not in [" << workspace_limits_(4) << " , "
+  //                             << workspace_limits_(5) << "]");
+  // }
 
-  if (arm_desired_twist_(0) < 0 && arm_real_position_(0) < workspace_limits_(0)) {
-    arm_desired_twist_(0) = 0;
-  }
+  // if (arm_desired_twist_(0) < 0 && arm_real_position_(0) < workspace_limits_(0)) {
+  //   arm_desired_twist_(0) = 0;
+  // }
 
-  if (arm_desired_twist_(0) > 0 && arm_real_position_(0) > workspace_limits_(1)) {
-    arm_desired_twist_(0) = 0;
-  }
+  // if (arm_desired_twist_(0) > 0 && arm_real_position_(0) > workspace_limits_(1)) {
+  //   arm_desired_twist_(0) = 0;
+  // }
 
-  if (arm_desired_twist_(1) < 0 && arm_real_position_(1) < workspace_limits_(2)) {
-    arm_desired_twist_(1) = 0;
-  }
+  // if (arm_desired_twist_(1) < 0 && arm_real_position_(1) < workspace_limits_(2)) {
+  //   arm_desired_twist_(1) = 0;
+  // }
 
-  if (arm_desired_twist_(1) > 0 && arm_real_position_(1) > workspace_limits_(3)) {
-    arm_desired_twist_(1) = 0;
-  }
+  // if (arm_desired_twist_(1) > 0 && arm_real_position_(1) > workspace_limits_(3)) {
+  //   arm_desired_twist_(1) = 0;
+  // }
 
-  if (arm_desired_twist_(2) < 0 && arm_real_position_(2) < workspace_limits_(4)) {
-    arm_desired_twist_(2) = 0;
-  }
+  // if (arm_desired_twist_(2) < 0 && arm_real_position_(2) < workspace_limits_(4)) {
+  //   arm_desired_twist_(2) = 0;
+  // }
 
-  if (arm_desired_twist_(2) > 0 && arm_real_position_(2) > workspace_limits_(5)) {
-    arm_desired_twist_(2) = 0;
-  }
+  // if (arm_desired_twist_(2) > 0 && arm_real_position_(2) > workspace_limits_(5)) {
+  //   arm_desired_twist_(2) = 0;
+  // }
+
 
   // velocity of the arm along x, y, and z axis
   double norm_vel_des = (arm_desired_twist_.segment(0, 3)).norm();
@@ -253,8 +266,8 @@ void AdmittanceController::limit_to_workspace() {
 
   }
 
-  // ROS_WARN_STREAM_THROTTLE(0.1,"Desired angular velocity: " << arm_desired_twist_(3) << " " << arm_desired_twist_(4) << " " <<  arm_desired_twist_(5));
-
+  if (norm_vel_des < 1e-6)
+    arm_desired_twist_.segment(0,3).setZero();
 
   // velocity of the arm along x, y, and z angles
   if (arm_desired_twist_(3) > 0.3)
@@ -263,6 +276,36 @@ void AdmittanceController::limit_to_workspace() {
       arm_desired_twist_(4) = 0.3;
   if (arm_desired_twist_(5) > 0.3)
       arm_desired_twist_(5) = 0.3;    
+
+
+  // Limit velocity using repulsive workspace limit velocity field
+  
+  double ee_base_norm   = (arm_real_position_arm_).norm();
+  double rec_operating_limit = 1.2; 
+  double dist_limit = rec_operating_limit - ee_base_norm; 
+  ROS_WARN_STREAM_THROTTLE(0.1, "||x_ee-w_limit||: " << dist_limit) ;
+  
+  // Can be formulated with a continuos function (sigmoid)
+  double workspace_fct = dist_limit;
+  if (dist_limit > 0.1)
+      workspace_fct = 1;
+  
+  // workspace_fct  *= norm_vel_des;  
+  // repulsive_field = workspace_fct * (repulsive_field/ee_base_norm);
+  // ROS_WARN_STREAM_THROTTLE(0.1,"Repulsive velocity field: "  << repulsive_field(0) << " " << repulsive_field(1) << " " <<  repulsive_field(2));  
+  ROS_WARN_STREAM_THROTTLE(0.1,"Workspace Scaling function: "  << workspace_fct);  
+  arm_desired_twist_.segment(0,3) = workspace_fct*arm_desired_twist_.segment(0,3);
+
+  if (ee_base_norm >= rec_operating_limit){
+    ROS_WARN_STREAM_THROTTLE(0.1, "Out of operational workspace limit!") ;
+    base_position_ << 0.33000, 0.00000, 0.48600;
+    Vector3d repulsive_field = -(arm_real_position_- base_position_);
+    arm_desired_twist_.segment(0,3) = 0.3*(repulsive_field/ee_base_norm);
+    ROS_WARN_STREAM_THROTTLE(0.1, "Bringing robot back slowly with uniform repulsive velocity field!") ;
+  }
+
+  if (arm_real_position_(2) < workspace_limits_(4))
+      arm_desired_twist_(2) += 0.3;
 
 }
 
@@ -278,21 +321,13 @@ void AdmittanceController::wait_for_transformations() {
 
   // Makes sure all TFs exists before enabling all transformations in the callbacks
   while (!get_rotation_matrix(rotation_base_, listener,
-                              "base_link", "arm_base_link")) {
-    sleep(1);
-  }
-  while (!get_rotation_matrix(rot_matrix, listener,
-                              "odom_combined", "base_link")) {
-    sleep(1);
-  }
-  while (!get_rotation_matrix(rot_matrix, listener,
-                              "odom_combined", "arm_base_link")) {
+                              "base_link", "arm_base_link", 1)) {
     sleep(1);
   }
   arm_world_ready_ = true;
   
   while (!get_rotation_matrix(rot_matrix, listener,
-                              "arm_base_link", "odom_combined")) {
+                              "arm_base_link", "base_link", 0)) {
     sleep(1);
   }
   world_arm_ready_ = true;
@@ -302,7 +337,7 @@ void AdmittanceController::wait_for_transformations() {
   //   sleep(1);
   // }
   while (!get_rotation_matrix(rotation_tool_, listener,
-                              "base_link", "arm_tool0")) {
+                              "base_link", "arm_tool0", 0)) {
     sleep(1);
   }
   ft_arm_ready_ = true;
@@ -316,19 +351,23 @@ void AdmittanceController::wait_for_transformations() {
 /// UTIL ///
 ////////////
 
+// Add a "get transformation"
 bool AdmittanceController::get_rotation_matrix(Matrix6d & rotation_matrix,
     tf::TransformListener & listener,
     std::string from_frame,
-    std::string to_frame) {
+    std::string to_frame, bool getT) {
   tf::StampedTransform transform;
   Matrix3d rotation_from_to;
   try {
     listener.lookupTransform(from_frame, to_frame,
                              ros::Time(0), transform);
-    tf::matrixTFToEigen(transform.getBasis(), rotation_from_to);
+    tf::matrixTFToEigen(transform.getBasis(), rotation_from_to);    
     rotation_matrix.setZero();
     rotation_matrix.topLeftCorner(3, 3) = rotation_from_to;
     rotation_matrix.bottomRightCorner(3, 3) = rotation_from_to;
+
+    if (getT==1)
+      base_position_ << transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z() ; 
   }
   catch (tf::TransformException ex) {
     rotation_matrix.setZero();
@@ -338,32 +377,3 @@ bool AdmittanceController::get_rotation_matrix(Matrix6d & rotation_matrix,
 
   return true;
 }
-
-
-
-// void AdmittanceController::publish_debuggings_signals() {
-
-//   geometry_msgs::WrenchStamped msg_wrench;
-
-//   msg_wrench.header.stamp    = ros::Time::now();
-//   msg_wrench.header.frame_id = "arm_base_link";
-//   msg_wrench.wrench.force.x  = wrench_external_(0);
-//   msg_wrench.wrench.force.y  = wrench_external_(1);
-//   msg_wrench.wrench.force.z  = wrench_external_(2);
-//   msg_wrench.wrench.torque.x = wrench_external_(3);
-//   msg_wrench.wrench.torque.y = wrench_external_(4);
-//   msg_wrench.wrench.torque.z = wrench_external_(5);
-//   pub_wrench_external_.publish(msg_wrench);
-
-//   msg_wrench.header.stamp    = ros::Time::now();
-//   msg_wrench.header.frame_id = "arm_base_link";
-//   msg_wrench.wrench.force.x  = wrench_control_(0);
-//   msg_wrench.wrench.force.y  = wrench_control_(1);
-//   msg_wrench.wrench.force.z  = wrench_control_(2);
-//   msg_wrench.wrench.torque.x = wrench_control_(3);
-//   msg_wrench.wrench.torque.y = wrench_control_(4);
-//   msg_wrench.wrench.torque.z = wrench_control_(5);
-//   pub_wrench_control_.publish(msg_wrench);
-
-// }
-

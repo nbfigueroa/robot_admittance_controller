@@ -94,6 +94,7 @@ protected:
 
   // Subscriber for the arm state
   ros::Subscriber sub_arm_pose_;
+  ros::Subscriber sub_arm_pose_arm_;
   ros::Subscriber sub_arm_twist_;
   // Subscriber for the ft sensor at the end-effector
   ros::Subscriber sub_wrench_external_;
@@ -104,10 +105,6 @@ protected:
   // --- Publishers --- //
   // Publisher for the twist of arm endeffector
   ros::Publisher pub_arm_cmd_;
-  // Publisher for the external wrench specified in the world frame
-  // ros::Publisher pub_wrench_external_;
-  // Publisher for the control wrench specified in the world frame
-  // ros::Publisher pub_wrench_control_;
 
 
   // --- INPUT SIGNAL --- //
@@ -137,6 +134,11 @@ protected:
   Quaterniond  arm_real_orientation_;
   Vector6d     arm_real_twist_;
 
+  // extra variables (this can be made more general; i.e. include in yaml file!)
+  Vector3d     arm_real_position_arm_;
+  Quaterniond  arm_real_orientation_arm_;
+  Vector3d     base_position_;
+
   // End-effector state: pose and twist (in "world" frame)
   Vector7d     ee_pose_world_;
   Vector6d     ee_twist_world_;
@@ -164,6 +166,7 @@ protected:
 
   // Callbacks
   void pose_arm_callback(const geometry_msgs::PoseConstPtr msg);
+  void pose_arm_arm_callback(const geometry_msgs::PoseConstPtr msg);
   void twist_arm_callback(const geometry_msgs::TwistConstPtr msg);
   void wrench_external_callback(const geometry_msgs::WrenchStampedConstPtr msg);
   void wrench_control_callback(const geometry_msgs::WrenchStampedConstPtr msg);
@@ -172,7 +175,7 @@ protected:
   // Util
   bool get_rotation_matrix(Matrix6d & rotation_matrix,
                            tf::TransformListener & listener,
-                           std::string from_frame,  std::string to_frame);
+                           std::string from_frame,  std::string to_frame, bool getT);
 
   void limit_to_workspace();
 
