@@ -171,8 +171,8 @@ void AdmittanceController::wrench_external_callback(
                     msg->wrench.torque.y, msg->wrench.torque.z;
 
 
-    // --- For now I assume it's in the ee reference frame already --- //                
-    get_rotation_matrix(rotation_tool_, listener_ft_, "base_link", "arm_tool0", 0 );
+    // --- This can be a callback! --- //                
+    get_rotation_matrix(rotation_tool_, listener_ft_, "base_link", "robotiq_force_torque_frame_id", 0 );    
     wrench_external_ <<  rotation_tool_  * wrench_ft_frame;
   }
 }
@@ -223,14 +223,14 @@ void AdmittanceController::limit_to_workspace() {
 
   }
 
-  if (norm_vel_des < 1e-6)
+  if (norm_vel_des < 1e-5)
     arm_desired_twist_.segment(0,3).setZero();
 
-  if (arm_desired_twist_(3) < 1e-6)
+  if (arm_desired_twist_(3) < 1e-5)
       arm_desired_twist_(3) = 0;
-  if (arm_desired_twist_(4)< 1e-6)
+  if (arm_desired_twist_(4)< 1e-5)
       arm_desired_twist_(4) = 0;
-  if (arm_desired_twist_(5) < 1e-6)
+  if (arm_desired_twist_(5) < 1e-5)
       arm_desired_twist_(5) = 0;    
 
   // velocity of the arm along x, y, and z angles
@@ -244,8 +244,8 @@ void AdmittanceController::limit_to_workspace() {
 
   // Impose workspace constraints on desired velocities
   double ee_base_norm   = (arm_real_position_arm_).norm();
-  // double rec_operating_limit = 1.15; // simulated robot
-  double rec_operating_limit = 1; // real robot
+  double rec_operating_limit = 1.15; // simulated robot
+  // double rec_operating_limit = 1; // real robot
   double dist_limit = rec_operating_limit - ee_base_norm; 
   ROS_WARN_STREAM_THROTTLE(0.1, "||x_ee-w_limit||: " << dist_limit) ;
   if (ee_base_norm >= rec_operating_limit){
@@ -296,12 +296,8 @@ void AdmittanceController::wait_for_transformations() {
   }
   world_arm_ready_ = true;
 
-  // while (!get_rotation_matrix(rot_matrix, listener,
-  //                             "arm_base_link", "robotiq_force_torque_frame_id")) {
-  //   sleep(1);
-  // }
   while (!get_rotation_matrix(rotation_tool_, listener,
-                              "base_link", "arm_tool0", 0)) {
+                              "base_link", "robotiq_force_torque_frame_id", 0)) {
     sleep(1);
   }
   ft_arm_ready_ = true;
