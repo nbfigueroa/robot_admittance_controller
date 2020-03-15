@@ -9,7 +9,7 @@
   <arg name="WRENCH_EXT_TOPIC_ARM"     default="/robotiq_force_torque_wrench_filtered"/>
   <arg name="WRENCH_CTR_TOPIC_ARM"     default="/arm_admittance_control/control_wrench" />
   <arg name="CMD_TOPIC_ARM"            default="/UR10arm/desired_twist"/>
-  <arg name="ADMITTANCE_PARAMS_FILE"   default="$(find arm_admittance_controller)/config/ur10_admittance_params.yaml" />
+  <arg name="ADMITTANCE_PARAMS_FILE"   default="$(find arm_admittance_controller)/config/ur10_admittance_params_real.yaml" />
 
  
   <group ns="admittance_control">

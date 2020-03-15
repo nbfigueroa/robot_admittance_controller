@@ -269,6 +269,13 @@ void AdmittanceController::limit_to_workspace() {
   if (norm_vel_des < 1e-6)
     arm_desired_twist_.segment(0,3).setZero();
 
+  if (arm_desired_twist_(3) < 1e-6)
+      arm_desired_twist_(3) = 0;
+  if (arm_desired_twist_(4)< 1e-6)
+      arm_desired_twist_(4) = 0;
+  if (arm_desired_twist_(5) < 1e-6)
+      arm_desired_twist_(5) = 0;    
+
   // velocity of the arm along x, y, and z angles
   if (arm_desired_twist_(3) > 0.3)
       arm_desired_twist_(3) = 0.3;
@@ -278,23 +285,12 @@ void AdmittanceController::limit_to_workspace() {
       arm_desired_twist_(5) = 0.3;    
 
 
-  // Modulate velocity wrt. enclosed workspace limits!
+  // Impose workspace constraints on desired velocities
   double ee_base_norm   = (arm_real_position_arm_).norm();
-  double rec_operating_limit = 1.15; 
+  double rec_operating_limit = 1.15; // simulated robot
+  double rec_operating_limit = 1; // real robot
   double dist_limit = rec_operating_limit - ee_base_norm; 
   ROS_WARN_STREAM_THROTTLE(0.1, "||x_ee-w_limit||: " << dist_limit) ;
-  
-  // Can be formulated with a continuos function (sigmoid)
-  double workspace_fct = dist_limit;
-  if (dist_limit > 0.1)
-      workspace_fct = 1;
-  
-  // workspace_fct  *= norm_vel_des;  
-  // repulsive_field = workspace_fct * (repulsive_field/ee_base_norm);
-  // ROS_WARN_STREAM_THROTTLE(0.1,"Repulsive velocity field: "  << repulsive_field(0) << " " << repulsive_field(1) << " " <<  repulsive_field(2));  
-  ROS_WARN_STREAM_THROTTLE(0.1,"Workspace Scaling function: "  << workspace_fct);  
-  // arm_desired_twist_.segment(0,3) = workspace_fct*arm_desired_twist_.segment(0,3);
-
   if (ee_base_norm >= rec_operating_limit){
     ROS_WARN_STREAM_THROTTLE(0.1, "Out of operational workspace limit!") ;
     base_position_ << 0.33000, 0.00000, 0.48600;
@@ -305,6 +301,18 @@ void AdmittanceController::limit_to_workspace() {
 
   if (arm_real_position_(2) < workspace_limits_(4))
       arm_desired_twist_(2) += 0.3;
+
+  
+  // Continuous modulation of velocity to follow the surface (try walid/sina's modulation)
+  double workspace_fct = dist_limit;
+  if (dist_limit > 0.05)
+      workspace_fct = 1;
+  
+  // workspace_fct  *= norm_vel_des;  
+  // repulsive_field = workspace_fct * (repulsive_field/ee_base_norm);
+  // ROS_WARN_STREAM_THROTTLE(0.1,"Repulsive velocity field: "  << repulsive_field(0) << " " << repulsive_field(1) << " " <<  repulsive_field(2));  
+  ROS_WARN_STREAM_THROTTLE(0.1,"Workspace Scaling function: "  << workspace_fct);  
+  // arm_desired_twist_.segment(0,3) = workspace_fct*arm_desired_twist_.segment(0,3);
 
 }
 
