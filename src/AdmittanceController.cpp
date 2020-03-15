@@ -213,49 +213,6 @@ void AdmittanceController::send_commands_to_robot() {
 
 void AdmittanceController::limit_to_workspace() {
 
-  // if (arm_real_position_(0) < workspace_limits_(0) || arm_real_position_(0) > workspace_limits_(1)) {
-  //   ROS_WARN_STREAM_THROTTLE (1, "Out of permitted workspace.  x = "
-  //                             << arm_real_position_(0) << " not in [" << workspace_limits_(0) << " , "
-  //                             << workspace_limits_(1) << "]");
-  // }
-
-  // if (arm_real_position_(1) < workspace_limits_(2) || arm_real_position_(1) > workspace_limits_(3)) {
-  //   ROS_WARN_STREAM_THROTTLE (1, "Out of permitted workspace.  y = "
-  //                             << arm_real_position_(1) << " not in [" << workspace_limits_(2) << " , "
-  //                             << workspace_limits_(3) << "]");
-  // }
-
-  // if (arm_real_position_(2) < workspace_limits_(4) || arm_real_position_(2) > workspace_limits_(5)) {
-  //   ROS_WARN_STREAM_THROTTLE (1, "Out of permitted workspace.  z = "
-  //                             << arm_real_position_(2) << " not in [" << workspace_limits_(4) << " , "
-  //                             << workspace_limits_(5) << "]");
-  // }
-
-  // if (arm_desired_twist_(0) < 0 && arm_real_position_(0) < workspace_limits_(0)) {
-  //   arm_desired_twist_(0) = 0;
-  // }
-
-  // if (arm_desired_twist_(0) > 0 && arm_real_position_(0) > workspace_limits_(1)) {
-  //   arm_desired_twist_(0) = 0;
-  // }
-
-  // if (arm_desired_twist_(1) < 0 && arm_real_position_(1) < workspace_limits_(2)) {
-  //   arm_desired_twist_(1) = 0;
-  // }
-
-  // if (arm_desired_twist_(1) > 0 && arm_real_position_(1) > workspace_limits_(3)) {
-  //   arm_desired_twist_(1) = 0;
-  // }
-
-  // if (arm_desired_twist_(2) < 0 && arm_real_position_(2) < workspace_limits_(4)) {
-  //   arm_desired_twist_(2) = 0;
-  // }
-
-  // if (arm_desired_twist_(2) > 0 && arm_real_position_(2) > workspace_limits_(5)) {
-  //   arm_desired_twist_(2) = 0;
-  // }
-
-
   // velocity of the arm along x, y, and z axis
   double norm_vel_des = (arm_desired_twist_.segment(0, 3)).norm();
 
@@ -287,7 +244,7 @@ void AdmittanceController::limit_to_workspace() {
 
   // Impose workspace constraints on desired velocities
   double ee_base_norm   = (arm_real_position_arm_).norm();
-  double rec_operating_limit = 1.15; // simulated robot
+  // double rec_operating_limit = 1.15; // simulated robot
   double rec_operating_limit = 1; // real robot
   double dist_limit = rec_operating_limit - ee_base_norm; 
   ROS_WARN_STREAM_THROTTLE(0.1, "||x_ee-w_limit||: " << dist_limit) ;
