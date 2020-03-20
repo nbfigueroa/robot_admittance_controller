@@ -8,7 +8,7 @@ Admittance control law to generate desired motion of an end-effector (twist), gi
 
 * The current implementation will also be tested on a Mitsubishi **position-controlled robot** equipped with a Mitsubishi force torque sensor. The robot is part of the MIT-Mitsubishi collaboration.
 
-**Disclaimer**: This code was originally forked from [ridgeback_ur5_controller](https://github.com/epfl-lasa/ridgeback_ur5_controller) which is a repo used to control a Clearpath robotic platform with a UR5 from the LASA laboratory at EPFL.
+**Disclaimer**: Parts of this code were originally forked from [ridgeback_ur5_controller](https://github.com/epfl-lasa/ridgeback_ur5_controller) which is a repo used to control a Clearpath robotic platform with a UR5 from the LASA laboratory at EPFL. Plenty modifications have been made in order to work with a standalone robotic arm.
 
 ## Installation
 
