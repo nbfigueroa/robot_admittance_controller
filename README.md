@@ -6,7 +6,7 @@ Such a controller is necessary to use impedance-control-like laws and provide co
 
 * The current implementation is being tested on a UR10 **velocity-controlled robot** equipped with a robotiq FT 300 force torque sensor. The arm is part of the Robbie Yuri robot of the Interactive Robotics Group (IRG), MIT which is an older version of the [Care-O-Bot](http://www.care-o-bot.org) platform series.
 
-* The current implementation will also be tested on a Mitsubishi **position-controlled robot** equipped with a Mitsubishi force torque sensor. The robot is part of the MIT-Mitsubishi collaboration.
+* The current implementation is being tested on a Mitsubishi **position-controlled robot** equipped with a Mitsubishi force torque sensor. The robot is part of the MIT-Mitsubishi collaboration.
 
 **Disclaimer**: Parts of this code were originally forked from [ridgeback_ur5_controller](https://github.com/epfl-lasa/ridgeback_ur5_controller) which is a repo used to control a Clearpath robotic platform with a UR5 from the LASA laboratory at EPFL. Plenty modifications have been made in order to work with a standalone robotic arm.
 
