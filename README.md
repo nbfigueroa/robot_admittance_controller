@@ -2,7 +2,7 @@
 
 Admittance control law to generate desired motion of an end-effector (twist), given a desired control wrench and external wrench for a robotic arm that is not torque-controlled (i.e. velocity or position controlled). 
 
-* Such a controller is necessary to use impedance-control-like laws and provide compliant human-robot-interaction when the  velocity/position controlled robot arm is equipped with an external force/torque sensor.
+Such a controller is necessary to use impedance-control-like laws and provide compliant human-robot-interaction when the  velocity/position controlled robot arm is equipped with an external force/torque sensor.
 
 * The current implementation is being tested on a UR10 **velocity-controlled robot** equipped with a robotiq FT 300 force torque sensor. The arm is part of the Robbie Yuri robot of the Interactive Robotics Group (IRG), MIT which is an older version of the [Care-O-Bot](http://www.care-o-bot.org) platform series.
 
