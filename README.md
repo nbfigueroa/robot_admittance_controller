@@ -11,9 +11,10 @@ Such a controller is necessary to use impedance-control-like laws and provide co
 **Disclaimer**: Parts of this code was originally forked from [ridgeback_ur5_controller](https://github.com/epfl-lasa/ridgeback_ur5_controller) which is a repo used to control a Clearpath robotic platform with a UR5 from the LASA laboratory at EPFL. Plenty modifications have been made in order to work with a standalone robotic arm.
 
 ## Installation
+...
 
 ## Usage
-
+...
 
 ## Contact
 **Maintainer**: [Nadia Figueroa](https://nbfigueroa.github.io/) (nadiafig AT mit dot edu)
