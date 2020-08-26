@@ -1,0 +1,23 @@
+# Admittance parameters for mass damper system
+mass_arm: [2,0,0,0,0,0,
+           0,2,0,0,0,0,
+           0,0,2,0,0,0,
+           0,0,0,1,0,0,
+           0,0,0,0,1,0,
+           0,0,0,0,0,1]
+damping_arm: [12,0,0,0,0,0,
+              0,12,0,0,0,0,
+              0,0,12,0,0,0,
+              0,0,0,7,0,0,
+              0,0,0,0,7,0,
+              0,0,0,0,0,7]
+# not that position is defined in "ur5_arm_base_link"
+# with x pointing right
+#      y pointing forward
+#      z pointing up
+
+# this will limit the workspace ([x_min x_max y_min y_max z_min z_max])
+# This is in the world reference frame!! Might need to change to arm_base_link
+workspace_limits: [0.45, 1.5, -1.3, 1.3, 0.10, 1.4]
+arm_max_vel: 0.3
+arm_max_acc: 0.3

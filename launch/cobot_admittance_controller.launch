@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<launch>
+  <!--
+      Launch file for the admittance controller
+  -->
+
+  <arg name="POSE_TOPIC_ARM"           default="/cobot/ee_pose"/>
+  <arg name="TWIST_TOPIC_ARM"          default="/cobot/ee_twist"/>  
+  <arg name="WRENCH_EXT_TOPIC_ARM"     default="/robotiq_force_torque_wrench_filtered"/>
+  <arg name="WRENCH_CTR_TOPIC_ARM"     default="/arm_admittance_control/control_wrench" />
+    <!-- <arg name="CMD_TOPIC_ARM"            default="/UR10arm/desired_twist"/> -->
+  <arg name="CMD_TOPIC_ARM"            default="/arm/twist_controller/command_twist"/>
+  <arg name="ADMITTANCE_PARAMS_FILE"   default="$(find arm_admittance_controller)/config/cobot_admittance_params.yaml" />
+
+ 
+  <group ns="admittance_control">
+    <!-- Converting args into params -->
+    <param name="topic_arm_pose"                   value="$(arg POSE_TOPIC_ARM)"/>
+    <param name="topic_arm_twist"                 value="$(arg TWIST_TOPIC_ARM)"/>
+    <param name="topic_external_wrench"            value="$(arg WRENCH_EXT_TOPIC_ARM)"/>
+    <param name="topic_control_wrench"             value="$(arg WRENCH_CTR_TOPIC_ARM)"/>
+    <param name="topic_arm_command"                value="$(arg CMD_TOPIC_ARM)"/>
+    <rosparam file="$(arg ADMITTANCE_PARAMS_FILE)" command="load"/>
+
+    <node pkg="arm_admittance_controller" name="admittance_controller_node"
+    type="admittance_controller_node" output="screen"/>
+
+  </group>
+
+</launch>
